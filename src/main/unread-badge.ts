@@ -1,9 +1,18 @@
 import * as mainWindow from './windows/main'
 import { app, ipcMain } from 'electron'
 import DeltaChatController from './deltachat/controller'
+import { getLogger } from '../shared/logger'
+import Badge from 'electron-windows-badge'
+const log = getLogger('main/badge')
 
 export default function setupUnreadBadge(dc: DeltaChatController) {
-  if (process.platform !== 'linux' && process.platform !== 'darwin') return
+  if (process.platform === 'win32') {
+    log.info('setup badge windows')
+    const badgeOptions = {
+      color: '#2090ea',
+    }
+    new Badge(mainWindow.window, badgeOptions)
+  }
 
   let reUpdateTimeOut: NodeJS.Timeout
 
@@ -12,7 +21,12 @@ export default function setupUnreadBadge(dc: DeltaChatController) {
       null,
       'chatList.getGeneralFreshMessageCounter'
     )
-    app.setBadgeCount(count)
+    log.info(`badge: ${count}`)
+    if (process.platform === 'win32') {
+      ipcMain.emit('update-badge', {}, count)
+    } else {
+      app.setBadgeCount(count)
+    }
   }
 
   dc._dc.on('DC_EVENT_INCOMING_MSG', (_chatId: number, _msgId: number) => {
@@ -31,7 +45,8 @@ export default function setupUnreadBadge(dc: DeltaChatController) {
     update()
   })
 
-  ipcMain.on('update-badge', () => {
+  ipcMain.on('update-badge-internal', () => {
+    log.debug(`update-badge-internal`)
     // after selecting a chat to take mark read into account
     if (reUpdateTimeOut) clearTimeout(reUpdateTimeOut)
     reUpdateTimeOut = setTimeout(() => update(), 200)

@@ -85,6 +85,7 @@
     "classnames": "^2.2.6",
     "debounce": "^1.2.0",
     "deltachat-node": "^1.50.0",
+    "electron-windows-badge": "^1.1.0",
     "emoji-js-clean": "^4.0.0",
     "emoji-mart": "^3.0.0",
     "emoji-regex": "^9.2.0",

@@ -165,7 +165,7 @@ class Electron implements Runtime {
     ipcBackend.send('reload-main-window')
   }
   updateBadge() {
-    ipcBackend.send('update-badge')
+    ipcBackend.send('update-badge-internal')
   }
 }
 
